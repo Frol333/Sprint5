@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Frol333/Sprint5/tree/main/internal/spentenergy"
 	"github.com/Yandex-Practicum/tracker/internal/personaldata"
+	"github.com/Yandex-Practicum/tracker/internal/spentenergy"
 )
 
 type Training struct {
@@ -28,11 +28,21 @@ func (t *Training) Parse(datastring string) (err error) {
 		return fmt.Errorf("invalid steps: %w", err)
 	}
 
+	// Проверяем, что количество шагов больше нуля.
+	if t.Steps <= 0 {
+		return fmt.Errorf("steps must be greater than zero")
+	}
+
 	t.TrainingType = data[1]
 
 	t.Duration, err = time.ParseDuration(data[2])
 	if err != nil {
 		return fmt.Errorf("invalid duration: %w", err)
+	}
+
+	// Проверяем, что длительность больше нуля.
+	if t.Duration <= 0 {
+		return fmt.Errorf("продолжительность хотьбы должна быть больше нуля")
 	}
 
 	return nil
@@ -51,9 +61,9 @@ func (t Training) ActionInfo() (string, error) {
 
 	switch t.TrainingType {
 	case "Бег":
-		calories, err = spentenergy.Running(t.Steps, t.Personal.Weight, t.Duration)
+		calories, err = spentenergy.RunningSpentCalories(t.Steps, t.Personal.Weight, t.Duration)
 	case "Ходьба":
-		calories, err = spentenergy.Walking(t.Steps, t.Personal.Weight, t.Duration)
+		calories, err = spentenergy.WalkingSpentCalories(t.Steps, t.Personal.Weight, t.Duration)
 	default:
 		return "неизвестный тип тренировки", fmt.Errorf("unknown training type: %s", t.TrainingType)
 	}
