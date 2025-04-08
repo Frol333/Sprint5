@@ -34,13 +34,26 @@ func MeanSpeed(steps int, height float64, duration time.Duration) float64 {
 	return distance / duration.Hours()
 }
 
+func main() {
+	var height float64 = 0.5
+	var duration time.Duration = time.Hour * 2
+	var steps int = 1000
+
+	speed := MeanSpeed(steps, height, duration)
+	println(speed)
+}
+
 // WalkingSpentCalories вычисляет калории, потраченные при ходьбе.
 func WalkingSpentCalories(steps int, weight float64, height float64, duration time.Duration) (float64, error) {
 	if weight <= 0 || height <= 0 || duration <= 0 || steps < 0 {
 		return 0, errors.New("некорректные входные параметры")
 	}
 
+	// Здесь должна быть логика расчета калорий.
+	// Временная реализация для примера.
 	meanSpeed := MeanSpeed(steps, height, duration)
+	walkingCaloriesWeightMultiplier := 0.035
+	walkingSpeedHeightMultiplier := 0.029
 	calories := ((walkingCaloriesWeightMultiplier * weight) + (meanSpeed*meanSpeed/height)*walkingSpeedHeightMultiplier) * duration.Minutes()
 	return calories, nil
 }

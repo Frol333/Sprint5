@@ -47,7 +47,7 @@ func (ds *DaySteps) Parse(datastring string) (err error) {
 // ActionInfo формирует строку с информацией о прогулке.
 func (ds DaySteps) ActionInfo() (string, error) {
 	distance := float64(ds.Steps) * 0.0006 // 1 шаг = 0.0006 км
-	calories, err := spentenergy.WalkingSpentCalories(ds.Steps)
+	calories, err := spentenergy.WalkingSpentCalories(ds.Steps, ds.Weight, ds.Height, ds.Duration)
 	if err != nil {
 		return "", err
 	}
