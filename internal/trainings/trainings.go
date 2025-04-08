@@ -17,42 +17,40 @@ type Training struct {
 	personaldata.Personal
 }
 
+// Parse разбирает строку данных и заполняет поля структуры Training.
 func (t *Training) Parse(datastring string) (err error) {
 	data := strings.Split(datastring, ",")
 	if len(data) != 3 {
-		return fmt.Errorf("invalid data format")
+		return fmt.Errorf("неверный формат данных")
 	}
 
 	t.Steps, err = strconv.Atoi(data[0])
 	if err != nil {
-		return fmt.Errorf("invalid steps: %w", err)
+		return fmt.Errorf("некорректное количество шагов: %w", err)
 	}
 
-	// Проверяем, что количество шагов больше нуля.
+	// Проверяем, что количество шагов не меньше или равно нулю.
 	if t.Steps <= 0 {
-		return fmt.Errorf("steps must be greater than zero")
+		return fmt.Errorf("количество шагов должно быть больше нуля")
 	}
 
 	t.TrainingType = data[1]
 
 	t.Duration, err = time.ParseDuration(data[2])
 	if err != nil {
-		return fmt.Errorf("invalid duration: %w", err)
+		return fmt.Errorf("некорректная длительность: %w", err)
 	}
 
-	// Проверяем, что длительность больше нуля.
+	// Проверяем, что длительность не меньше или равна нулю.
 	if t.Duration <= 0 {
-		return fmt.Errorf("продолжительность хотьбы должна быть больше нуля")
+		return fmt.Errorf("длительность должна быть больше нуля")
 	}
 
 	return nil
 }
 
+// ActionInfo формирует строку с информацией о тренировке.
 func (t Training) ActionInfo() (string, error) {
-	if t.Duration <= 0 {
-		return "", fmt.Errorf("duration must be greater than zero")
-	}
-
 	distance := spentenergy.Distance(t.Steps, t.Personal.Height)
 	speed := spentenergy.MeanSpeed(distance, t.Duration)
 
@@ -65,7 +63,7 @@ func (t Training) ActionInfo() (string, error) {
 	case "Ходьба":
 		calories, err = spentenergy.WalkingSpentCalories(t.Steps, t.Personal.Weight, t.Duration)
 	default:
-		return "неизвестный тип тренировки", fmt.Errorf("unknown training type: %s", t.TrainingType)
+		return "", fmt.Errorf("неизвестный тип тренировки: %s", t.TrainingType)
 	}
 
 	if err != nil {

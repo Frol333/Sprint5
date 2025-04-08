@@ -1,6 +1,7 @@
 package spentenergy
 
 import (
+	"errors"
 	"time"
 )
 
@@ -23,6 +24,9 @@ func Distance(steps int, height float64) float64 {
 
 // MeanSpeed вычисляет среднюю скорость в км/ч.
 func MeanSpeed(steps int, height float64, duration time.Duration) float64 {
+	if steps < 0 {
+		return 0
+	}
 	if duration <= 0 {
 		return 0
 	}
@@ -31,21 +35,24 @@ func MeanSpeed(steps int, height float64, duration time.Duration) float64 {
 }
 
 // WalkingSpentCalories вычисляет калории, потраченные при ходьбе.
-func WalkingSpentCalories(steps int, weight float64, height float64, duration time.Duration) float64 {
-	if weight <= 0 || height <= 0 || duration <= 0 {
-		return 0
+func WalkingSpentCalories(steps int, weight float64, height float64, duration time.Duration) (float64, error) {
+	if weight <= 0 || height <= 0 || duration <= 0 || steps < 0 {
+		return 0, errors.New("некорректные входные параметры")
 	}
 
 	meanSpeed := MeanSpeed(steps, height, duration)
-	return ((walkingCaloriesWeightMultiplier * weight) + (meanSpeed*meanSpeed/height)*walkingSpeedHeightMultiplier) * duration.Minutes()
+	calories := ((walkingCaloriesWeightMultiplier * weight) + (meanSpeed*meanSpeed/height)*walkingSpeedHeightMultiplier) * duration.Minutes()
+	return calories, nil
 }
 
 // RunningSpentCalories вычисляет калории, потраченные при беге.
-func RunningSpentCalories(steps int, weight float64, height float64, duration time.Duration) float64 {
-	if weight <= 0 || duration <= 0 {
-		return 0
+func RunningSpentCalories(steps int, weight float64, height float64, duration time.Duration) (float64, error) {
+	if weight <= 0 || duration <= 0 || steps < 0 || height <= 0 {
+		return 0, errors.New("некорректные входные параметры")
 	}
 	meanSpeed := MeanSpeed(steps, height, duration)
 
-	return (runningCaloriesMeanSpeedMultiplier*meanSpeed - runningCaloriesMeanSpeedShift) * weight
+	calories := (runningCaloriesMeanSpeedMultiplier*meanSpeed + runningCaloriesMeanSpeedShift) * weight * duration.Minutes()
+
+	return calories, nil
 }
